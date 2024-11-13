@@ -1,0 +1,14 @@
+{
+  "name": "2024-talking-market-backend",
+  "version": "1.0.0",
+  "description": "2024 미림소프트웨어챌린지 &lt;말로마트>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
