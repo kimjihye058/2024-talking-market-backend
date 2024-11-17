@@ -72,6 +72,33 @@ app.get('/products/:category', (req, res) => {
   });
 });
 
+// order_id가 같은 제품들을 JSON 형식으로 반환하는 API (예: /products/order/1234)
+app.get('/products/order/:order_id', (req, res) => {
+  const order_id = req.params.order_id;  // URL 파라미터로 받은 order_id 값
+  const query = 'SELECT order_id, name, price, img_url FROM select_product WHERE order_id = ?';
+
+  connection.query(query, [order_id], (err, results) => {
+    if (err) {
+      console.error('쿼리 실행 오류: ' + err.stack);
+      res.status(500).send('서버 오류');
+      return;
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('해당 주문 ID의 제품을 찾을 수 없습니다.');
+    }
+
+    const products = results.map(product => ({
+      order_id: product.order_id,
+      name: product.name,
+      price: product.price,
+      img_url: product.img_url
+    }));
+
+    res.json(products);  // JSON 형식으로 응답
+  });
+});
+
 // 서버 종료 시 MySQL 연결 종료
 process.on('SIGINT', () => {
   connection.end((err) => {
