@@ -135,6 +135,42 @@ app.post('/select_product', (req, res) => {
   });
 });
 
+app.post('/order', (req, res) => {
+  const { names, prices, counts, address } = req.body;
+
+  // 입력 데이터 확인
+  if (!names || !prices || !counts || !address) {
+    console.log('입력 데이터 부족:', req.body);
+    return res.status(400).send('모든 필드를 입력해주세요.');
+  }
+
+  // 가격 합계 및 갯수 합계 계산
+  const total_price = prices.reduce((sum, price) => sum + price, 0);
+  const total_count = counts.reduce((sum, count) => sum + count, 0);
+
+  // 쿼리 작성
+  const query = 'INSERT INTO `order` (name, price, count, address) VALUES (?, ?, ?, ?)';
+  const values = [JSON.stringify(names), total_price, total_count, address];
+
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('쿼리 실행 오류: ' + err.stack);
+      return res.status(500).send('서버 오류');
+    }
+
+    res.status(201).json({
+      message: '주문이 성공적으로 추가되었습니다.',
+      orderId: results.insertId,
+      orderDetails: {
+        names,
+        total_price,
+        total_count,
+        address
+      }
+    });
+  });
+});
+
 
 // 서버 종료 시 MySQL 연결 종료
 process.on('SIGINT', () => {
