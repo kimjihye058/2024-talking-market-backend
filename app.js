@@ -3,6 +3,7 @@ require('dotenv').config();  // dotenv 패키지 로드
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');  // CORS 패키지 로드
+const { v4: uuidv4 } = require('uuid');  // UUID 패키지 로드
 const app = express();
 const port = 4000;
 
@@ -27,7 +28,7 @@ connection.connect((err) => {
 
 // 모든 제품을 JSON 형식으로 반환하는 API
 app.get('/products', (req, res) => {
-  const query = 'SELECT name, price, image_url FROM products';
+  const query = 'SELECT name, price, img_url FROM products';
   connection.query(query, (err, results) => {
     if (err) {
       console.error('쿼리 실행 오류: ' + err.stack);
@@ -38,7 +39,7 @@ app.get('/products', (req, res) => {
     const products = results.map(product => ({
       name: product.name,
       price: product.price,
-      image_url: product.image_url
+      img_url: product.img_url
     }));
 
     res.json(products);  // JSON 형식으로 응답
@@ -48,7 +49,7 @@ app.get('/products', (req, res) => {
 // 특정 종류의 제품을 JSON 형식으로 반환하는 API (예: /products/apple)
 app.get('/products/:category', (req, res) => {
   const category = req.params.category;  // URL 파라미터로 받은 카테고리 값
-  const query = 'SELECT name, price, image_url FROM products WHERE name LIKE ?';
+  const query = 'SELECT name, price, img_url FROM products WHERE name LIKE ?';
 
   // 예: '사과'가 포함된 제품만 조회
   const searchTerm = `%${category}%`;
@@ -67,7 +68,7 @@ app.get('/products/:category', (req, res) => {
     const products = results.map(product => ({
       name: product.name,
       price: product.price,
-      image_url: product.image_url
+      img_url: product.img_url
     }));
 
     res.json(products);  // JSON 형식으로 응답
@@ -77,7 +78,7 @@ app.get('/products/:category', (req, res) => {
 // order_id가 같은 제품들을 JSON 형식으로 반환하는 API (예: /products/order/1234)
 app.get('/products/order/:order_id', (req, res) => {
   const order_id = req.params.order_id;  // URL 파라미터로 받은 order_id 값
-  const query = 'SELECT order_id, name, price, img_url FROM select_product WHERE order_id = ?';
+  const query = 'SELECT name, price, img_url FROM select_product WHERE order_id = ?';
 
   connection.query(query, [order_id], (err, results) => {
     if (err) {
@@ -100,6 +101,40 @@ app.get('/products/order/:order_id', (req, res) => {
     res.json(products);  // JSON 형식으로 응답
   });
 });
+
+// 새로운 상품을 추가하는 API (POST 요청)
+app.post('/select_product', (req, res) => {
+  const { name, price, count, order_id, img_url } = req.body;
+
+  // 입력 데이터 확인
+  if (!name || !price || !count || !order_id || !img_url) {
+    return res.status(400).send('모든 필드를 입력해주세요.');
+  }
+
+  // 데이터베이스에 새로운 상품 추가
+  const query = 'INSERT INTO select_product (name, price, count, order_id, img_url) VALUES (?, ?, ?, ?, ?)';
+  const values = [name, price, count, order_id, img_url];
+
+  connection.query(query, values, (err, results) => {
+    if (err) {
+      console.error('쿼리 실행 오류: ' + err.stack);
+      res.status(500).send('서버 오류');
+      return;
+    }
+
+    res.status(201).json({
+      message: '상품이 성공적으로 추가되었습니다.',
+      product: {
+        name,
+        price,
+        count,
+        order_id,
+        img_url
+      }
+    });
+  });
+});
+
 
 // 서버 종료 시 MySQL 연결 종료
 process.on('SIGINT', () => {
