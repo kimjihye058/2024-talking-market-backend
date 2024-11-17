@@ -87,7 +87,7 @@ app.get('/products/order/:order_id', (req, res) => {
     if (results.length === 0) {
       return res.status(404).send('해당 주문 ID의 제품을 찾을 수 없습니다.');
     }
-
+    
     const products = results.map(product => ({
       order_id: product.order_id,
       name: product.name,
@@ -110,6 +110,7 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
+
 
 // 서버 실행
 app.listen(port, () => {
