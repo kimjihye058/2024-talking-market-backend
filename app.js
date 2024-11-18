@@ -28,7 +28,7 @@ connection.connect((err) => {
 
 // 모든 제품을 JSON 형식으로 반환하는 API
 app.get('/products', (req, res) => {
-  const query = 'SELECT name, price, img_url FROM products';
+  const query = 'SELECT name, image_url, price FROM products';
   connection.query(query, (err, results) => {
     if (err) {
       console.error('쿼리 실행 오류: ' + err.stack);
@@ -38,8 +38,8 @@ app.get('/products', (req, res) => {
 
     const products = results.map(product => ({
       name: product.name,
-      price: product.price,
-      img_url: product.img_url
+      image_url: product.image_url,
+      price: product.price
     }));
 
     res.json(products);  // JSON 형식으로 응답
@@ -49,7 +49,7 @@ app.get('/products', (req, res) => {
 // 특정 종류의 제품을 JSON 형식으로 반환하는 API (예: /products/apple)
 app.get('/products/:category', (req, res) => {
   const category = req.params.category;  // URL 파라미터로 받은 카테고리 값
-  const query = 'SELECT name, price, img_url FROM products WHERE name LIKE ?';
+  const query = 'SELECT name, price, image_url FROM products WHERE name LIKE ?';
 
   // 예: '사과'가 포함된 제품만 조회
   const searchTerm = `%${category}%`;
@@ -68,7 +68,7 @@ app.get('/products/:category', (req, res) => {
     const products = results.map(product => ({
       name: product.name,
       price: product.price,
-      img_url: product.img_url
+      image_url: product.image_url
     }));
 
     res.json(products);  // JSON 형식으로 응답
