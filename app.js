@@ -78,7 +78,7 @@ app.get('/products/:category', (req, res) => {
 // order_id가 같은 제품들을 JSON 형식으로 반환하는 API (예: /products/order/1234)
 app.get('/products/order/:order_id', (req, res) => {
   const order_id = req.params.order_id;  // URL 파라미터로 받은 order_id 값
-  const query = 'SELECT name, price, img_url FROM select_product WHERE order_id = ?';
+  const query = 'SELECT name, price, count, img_url FROM select_product WHERE order_id = ?';
 
   connection.query(query, [order_id], (err, results) => {
     if (err) {
@@ -95,6 +95,7 @@ app.get('/products/order/:order_id', (req, res) => {
       order_id: product.order_id,
       name: product.name,
       price: product.price,
+      count: product.count,
       img_url: product.img_url
     }));
 
