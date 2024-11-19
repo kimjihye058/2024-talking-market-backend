@@ -107,7 +107,7 @@ app.get('/products/order/:order_id', (req, res) => {
 app.post('/select_product', (req, res) => {
   const { name, price, count, order_id, img_url } = req.body;
 
-  // 입력 데이터 확인
+  // 입력 데이터 확인ㅎ
   if (!name || !price || !count || !order_id || !img_url) {
     return res.status(400).send('모든 필드를 입력해주세요.');
   }
